@@ -1,0 +1,71 @@
+body {
+  max-width: 1600px;
+  padding: 0;
+  margin-top: 20px;
+  margin-left: 100px;
+  font-family: sans-serif;
+}
+
+.entry {
+  display: inline-block;
+  float: left;
+  border: 1px solid black;
+  margin-right: 18px;
+  margin-bottom: 25px;
+  box-shadow: 1px 1px 1px 1px #c0c0c0;
+  height: 150px;
+  padding: 15px;
+}
+
+.thumbnail {
+  height: 150px;
+  float: left;
+  margin-right: 20px;
+}
+
+h1 {
+  font-size: 36pt;
+  margin: 0;
+}
+
+.banner h2 {
+  font-size: 12pt;
+  margin: 0;
+  margin-bottom: 15px;
+}
+
+h3 {
+  margin: 0;
+}
+
+.banner p {
+  font-style: italic;
+}
+
+ul {
+  list-style-type: none;
+  margin-left: 20px;
+  padding: 0;
+}
+
+
+.meetup ul span {
+  margin-left: 13px;
+}
+
+.meetup {
+  background-color: #dee4ff;
+}
+
+p {
+  margin: 0;
+  margin-bottom: 10px;
+}
+
+.size-1 {
+  width: 270px;
+}
+
+.size-2 {
+  width: 590px;
+}
