@@ -1,0 +1,68 @@
+body {
+  font-family: sans-serif;
+  background-color: #AE948C;
+  padding: 0;
+  margin: 0;
+}
+
+h1 {
+  margin-top: 20px;
+  margin-bottom: 5px;
+}
+
+a:link {
+  color: #D16C63;
+}
+
+a:visited {
+  color: #4E4F56;
+}
+
+a.title {
+  text-decoration: none;
+  color: #00ff00; /* EXTREME RADIOACTIVE LIME GREEN */
+}
+
+p {
+  margin-top: 0;
+}
+
+.container {
+  max-width: 680px;
+  margin-left: 40px;
+  margin-right: 40px;
+  margin-bottom: 20px;
+  box-shadow: 1px 1px 1px 1px;
+}
+
+.main-subtitle {
+  font-size: 14pt;
+  font-weight: bold;
+  color: #DBD0C1;
+}
+
+.article-header {
+  background-color: white;
+  padding: 20px;
+  background-image: linear-gradient( rgba(0, 0, 0, 0.66), rgba(0, 0, 0, 0.66) ), url('../img/ultra-deep-field.jpg');
+  background-size: 680px auto;
+  background-position: 0px -50px;
+  height: 120px;
+}
+
+.article-body {
+  background-color: #DBD0C1;
+  padding: 20px;
+}
+
+.typewriter {
+  font-family: monospace;
+}
+
+.serif {
+  font-family: serif;
+}
+
+li {
+  list-style-type: circle;
+}

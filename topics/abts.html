@@ -1,0 +1,84 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Haskellcats.net</title>
+  <meta name="description" content="Haskellcats Reading Group NOLA">
+  <meta name="author" content="">
+
+  <link rel="stylesheet" href="../css/article.css">
+  <script src="../js/scripts.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="article-header">
+  <h1><a class="title" href="http://haskellcats.net">Haskellcats.net</a></h1>
+  <p class="main-subtitle">Underground Functional Reading Group</p>
+</div>
+
+<div class="article-body">
+  <h2>Practical Foundations for Programming Languages: Abstract Binding Trees</h2>
+
+  <p>Jan 28, 2017</p>
+
+  <p>
+Yes! We have an actual topic for Monday. From the perspective of a compiler you
+would like to think of code not as text but as structured "abstract syntax". This
+form of the code ignores the limitations of ASCII rendering and focuses only on the
+grammatical structure. The concrete form of the ASCII source can be considered
+an <i>image</i> of the abstract syntax. Conversely, parsers have the non-trivial job
+of reconstructing abstract syntax from concrete syntax.
+  </p>
+
+  <p>
+In Bob Harper's textbook Practical Foundations for Programming Languages he
+begins with a general theory of abstract syntax enriched with the notion of
+"binding forms". Examples of binding forms:
+  </p>
+
+  <ul>
+    <li>let x = 2 in x + x</li>
+    <li>λx . x (y x)</li>
+    <li>forall a . [a] → [a]</li>
+    <li>[1,2,3].each{|x| puts (x+1)}</li>
+    <li>Π<sub>x:A</sub> B(x)</li>
+  </ul>
+
+  <p>
+Basically they introduce variables which can be referenced within a specific
+scope. There are many features that make use of binding, but the machinery to
+manage references and scopes is the same for them all.
+  </p>
+
+  <p>
+How does that machinery work? I don't know, but we have some references.
+  </p>
+
+  <ul>
+    <li>Section 1.1 and 1.2 of Harper's book</li>
+    <li><a href="https://pdfs.semanticscholar.org/1df1/a0b5e9d14855e24deb7cd602bdef9445a435.pdf">McBride's Functional Pearl: I am not a Number—I am a Free Variable</a></li>
+    <li><a href="http://semantic-domain.blogspot.com/2015/03/abstract-binding-trees.html">Blog post by Neelakantan Krishnaswami</a></li>
+    <li><a href="https://winterkoninkje.dreamwidth.org/103978.html">Blog post by Wren Romano</a></li>
+  </ul>
+
+  <p>
+<b>Challenge:</b> In whatever language, implement some kind of abstract binding
+tree structure which supports:</p>
+
+  <ul>
+    <li>multiple kinds of binders</li>
+    <li>abstraction (convert free variables to bound variables)</li>
+    <li>substitution</li>
+  </ul>
+
+</div>
+
+</div>
+
+</body>
+</html>
