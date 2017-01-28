@@ -46,7 +46,7 @@ p {
   padding: 20px;
   background-image: linear-gradient( rgba(0, 0, 0, 0.66), rgba(0, 0, 0, 0.66) ), url('../img/ultra-deep-field.jpg');
   background-size: 680px auto;
-  background-position: 0px -50px;
+  background-position: 0px 0px;
   height: 120px;
 }
 
