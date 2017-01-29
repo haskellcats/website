@@ -68,3 +68,11 @@ p {
 li {
   list-style-type: circle;
 }
+
+
+code {
+  display: block;
+  white-space: pre;
+  margin-bottom: 20px;
+  overflow-x: auto;
+}

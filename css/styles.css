@@ -75,3 +75,20 @@ p {
 .size-2 {
   width: 590px;
 }
+
+.typewriter {
+  font-family: monospace;
+}
+
+a.external:after {
+  background-image: url(https://upload.wikimedia.org/wikipedia/commons/a/a7/Ei-external-link.svg);
+  background-size: 24px 24px;
+  display: inline-block;
+  width: 24px; 
+  height: 24px;
+  content:"";
+}
+
+.selected-entry {
+  box-shadow: 1px 1px 20px 5px;
+}

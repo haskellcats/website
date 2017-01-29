@@ -1,0 +1,160 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Haskellcats.net</title>
+  <meta name="description" content="Haskellcats Reading Group NOLA">
+  <meta name="author" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="../css/article.css">
+  <script src="../js/scripts.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="article-header">
+  <h1><a class="title" href="http://haskellcats.net">Haskellcats.net</a></h1>
+  <p class="main-subtitle">Underground Functional Reading Group</p>
+</div>
+
+<div class="article-body">
+  <h2>The Life Page</h2>
+
+  <p>
+In March 2016 the Haskellcats were sent to investigate the weird world of
+Smooth Life (<a href="https://arxiv.org/abs/1111.1567">https://arxiv.org/abs/1111.1567</a>).
+This was one of their first missions ever.
+  </p>
+
+  <p>Imagine regular Conway's Life with these modifications:</p>
+
+  <ul>
+    <li>Infinite grid replaced with the two dimensional real plane</li>
+    <li>Life/death of cells replaced with a continuous value between 0 and 1</li>
+    <li>Neighbor counting replaced with an integral of each point's circular neighborhood</li>
+    <li>Discrete time steps replaced with continuous time</li>
+    <li>Discrete transition rules replaced with a differential equation</li>
+  </ul>
+
+  <p>
+If that sounds wacky, that is what the Haskellcats are all about. Here is
+a youtube video of a form of smooth life.
+  </p>
+
+  <p style="text-align: center">
+    <a href="https://www.youtube.com/watch?v=KJe9H6qS82I">
+      <img height=200 src="https://img.youtube.com/vi/KJe9H6qS82I/0.jpg">
+    </a>
+  </p>
+
+  <p>
+<a href="https://sourceforge.net/projects/smoothlife/">There is one smooth life
+implementation in C++</a> which makes use of GPU magic to get reasonable
+performance. Clearly there needed to be some sort of an attempt at this
+in Haskell.
+  </p>
+
+  <p>
+Well, I didn't get to the smooth part. But here are two simple implementations
+of regular life complete with graphics:
+<a href="https://github.com/haskellcats/life-experiment">github repo</a>.
+One implementation uses Gloss's pure interface and the
+<a href="http://blog.sigfpe.com/2006/12/evaluating-cellular-automata-is.html">
+stupid comonad trick</a>. The other one uses a mutable multidimensional array
+in an attempt to get better performance, and to demonstrate that Haskell has
+mutable multidimensional arrays.
+  </p>
+
+  <p>Video of that program in action, though I can see it wasn't finalized
+when I made the video.</p>
+
+  <p style="text-align: center">
+    <a href="https://www.youtube.com/watch?v=qek030hAGKE">
+      <img height=200 src="https://img.youtube.com/vi/qek030hAGKE/0.jpg">
+    </a>
+  </p>
+
+  <p>Around that time I also threw together some 3D life to demonstrate OpenGL in Haskell:</p>
+
+  <p style="text-align: center">
+    <a href="https://www.youtube.com/watch?v=QC6TcvkAOgc">
+      <img height=200 src="https://img.youtube.com/vi/QC6TcvkAOgc/0.jpg">
+    </a>
+    <a href="https://www.youtube.com/watch?v=ugJDFfFcQHo">
+      <img height=200 src="https://img.youtube.com/vi/ugJDFfFcQHo/0.jpg">
+    </a>
+  </p>
+
+  <p>Weird 3D oscillators!</p>
+
+<!--
+  <p>Have some APL:</p>
+
+  <p style="text-align: center">
+    <a href="https://www.youtube.com/watch?v=a9xAKttWgP4">
+      <img height=200 src="https://img.youtube.com/vi/a9xAKttWgP4/0.jpg">
+    </a>
+  </p>
+-->
+  <h3>Let's Get Infinite</h3>
+
+  <p>All of the Lifes listed so far have been on a periodic playing field. So
+whenever information was needed past the edge of the area, the sampler would
+look at the exact opposite side. This causes the world to behave as if it
+were infinitely tiled in every direction, or to be wrapped onto the surface
+of a donut.</p>
+
+  <p>More sophisticated implementations will allow an infinite playing field
+by dynamically allocating more space as the patterns grew toward the edge.
+Very sophisticated ones will recognize individual spaceships and simulate
+them specially to get more memory performance. But all of them require your
+initial starting pattern to be bounded, finite. Makes sense. Either the
+starting pattern is finite or its an infinite repeating pattern.</p>
+
+  <p>But wait! It is theoretically possible to begin with an <b>arbitrary
+infinite pattern!</b></p>
+
+  <p>How? Well you can represent an infinite pattern on the grid using a
+function from <span style="white-space: nowrap;">Z² → Bool</span>.
+This will let you encode any computable starting
+pattern. Cool, but how would you expect to compute even the second generation?</p>
+
+  <p>Instead of trying to explain, I will show the code. The life program
+will be a function that takes the starting pattern (a function of grid coords),
+a position to check, and a step number. It will return a Bool for the state
+of the cell.</p>
+
+  <code>life :: (Z² → Bool) → Z² → N → Bool
+life start p step = go p step <b>where</b>
+  go p 0 = start p
+  go p step = (rule current . sum . map check . neighbs) p <b>where</b>
+    current = go p (step - 1)
+    check p = <b>if</b> go p (step - 1) <b>then</b> 1 <b>else</b> 0
+    neighbs p = [p + P dx dy | dx ← [-1..1], dy ← [-1..1], (dx,dy) /= (0,0)]
+    rule False 3 = True
+    rule False _ = False
+    rule True n | n &lt; 2     = False
+                | n &gt; 3     = False
+                | otherwise = True</code>
+
+  <p>If you ask for the status of a cell at step 0 then it will use the
+  starting pattern. If you ask for step 1 then it will recursively check its
+  own status and the status of neighbors at step <span style="white-space: nowrap">1-1=0</span>.  
+  This again uses the starting pattern. Already we can see this algorithm has a
+  good chance of terminating for any step number we want.</p>
+
+  <p>Of course the amount of work to get to each subsequent step will increase
+  greatly. Like an expanding wave front, the area the algorithm needs to
+  inspect for each visible cell will grow at the speed of light.</p>
+
+</div>
+
+</div>
+
+</body>
+</html>
