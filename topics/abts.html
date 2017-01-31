@@ -154,8 +154,8 @@ Namely <span style="white-space: nowrap">"forall _ in Expr . Expr(_)"</span>.</p
 &gt; ("=",F "N") ---&gt; App (App (F "=") (F "x")) (F "x")
 (∀ _ ϵ N . (0 x x)) -- careful where you point that!
 
-&gt; ("N",(F "Type")) ---&gt; ex1
-(∀ _ ϵ Type . (∀ _ in 1 . (= 0 0))) -- 👍
+&gt; ("N", F "Type") ---&gt; ex1
+(∀ _ ϵ Type . (∀ _ in 0 . (= 0 0))) -- 👍
 </code>
 
   <p>In this way an expression can be processed from top to bottom by providing
