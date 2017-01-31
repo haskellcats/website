@@ -77,6 +77,144 @@ tree structure which supports:</p>
     <li>substitution</li>
   </ul>
 
+  <h3>Epilogue</h3>
+
+  <p>Jan 30, 2017</p>
+
+  <p>Substitution gone wrong in the presence of binding:</p>
+
+  <code>LC&gt; (λx λy . x y)(λz . y) -- last y is free
+λy . (λz . y) y           -- inner y erroneously bound
+</code>
+
+  <p>Using de Bruijn indices instead of names for bound variables fixes it:</p>
+
+  <code>LC&gt; (λ_ λ_ . 1 0)(λ_ . y) -- y is free therefore named
+λ_ . (λ_ . y) 0           -- correct. y is still free
+</code>
+
+  <p>You can also rename all bound variables against whats free in the replacement:</p>
+
+  <code>LC&gt; (λx λy . x y)(λz . y) -- last y is free
+λy' . (λz . y) y'         -- inner y still free
+</code>
+
+  <p>And this is how capture-avoiding substitution works in the blog post and
+in Harper.</p>
+
+  <p>The functional pearl prefers to use indexes for bound variables and names
+for free variables.</p>
+
+  <code>data Expr =
+  F Name            | -- free named variable
+  B Int             | -- bound numbered variable
+  App Expr Expr     | -- apply
+  Forall Expr Scope   -- forall _ in Expr . Expr(_)
+
+newtype Scope = Sc Expr -- contains exactly one "dangling" bound variable
+</code>
+
+All operations on expressions are built up from two basic
+operations: abstraction and instantiation. Substitution of free variables with
+expressions is literally the composition of the two.</p>
+
+  <code>&gt; ex0 -- an expression with no binders in it, no indexes
+(sqrt ((+ (sqr x)) (sqr y))) :: Expr
+
+&gt; abstract "x" ex0 -- punch out a hole at x
+(sqrt ((+ (sqr 0)) (sqr y))) :: Scope
+
+&gt; instantiate (F "z") (abstract "x" ex0) -- fill in hole with some expression
+(sqrt ((+ (sqr z)) (sqr y))) :: Expr
+
+substitute name subject = instantiate subject . abstract name
+</code>
+
+  <p>From here we can play with the example language's one binding form.
+Namely <span style="white-space: nowrap">"forall _ in Expr . Expr(_)"</span>.</p>
+
+  <code>&gt; ex1 -- quantified expression has anonymous variable
+(∀ _ ϵ N . (= 0 0)) :: Expr
+</code>
+
+  <p>Define an operation to deconstruct a quantified expression by naming the variable.</p>
+
+  <code>&gt; let name &lt;--- Forall dom body = ((name, dom), instantiate (F name) body)
+&gt; "x" &lt;--- ex1
+(("x",N),(= x x)) -- dom and body now available for further analysis
+</code>
+
+  <p>And an inverse operation to abstract over a pre-existing free variable.</p>
+
+  <code>&gt; let (name, dom) ---&gt; body = Forall dom (abstract name body)
+
+&gt; ("x",F "N") ---&gt; App (App (F "=") (F "x")) (F "x")
+(∀ _ ϵ N . (= 0 0)) -- everything neatly packed up again
+
+&gt; ("=",F "N") ---&gt; App (App (F "=") (F "x")) (F "x")
+(∀ _ ϵ N . (0 x x)) -- careful where you point that!
+
+&gt; ("N",(F "Type")) ---&gt; ex1
+(∀ _ ϵ Type . (∀ _ in 1 . (= 0 0))) -- 👍
+</code>
+
+  <p>In this way an expression can be processed from top to bottom by providing
+names in order to go inside of binders. A scheme to choose these names in a
+meaningful and efficient way is described in McBride's paper.</p>
+
+  <p>Conversely an Expr may be constructed from some other source in order to
+separate the names from the pure structure. This will allow comparison of
+code up to alpha equivalence and safe substitutions.</p>
+
+  <p>Algorithms to process expressions then amount to zipping and unzipping
+back and forth to consume or provide bound names. In the second half of
+the paper this sort of traversal is abstracted out into its own higher order
+function.</p>
+
+  <p>Finally they show how they used this in Epigram to generate code for
+induction principles from user-defined data types.</p>
+
+  <p>Code: <a href="https://github.com/haskellcats/ast-abt-experiment">github repo</a></p>
+
+  
+
+<!--
+  <p>We covered a lot of ground tonight. Let me see if I can organize what
+we did and why. What we did:</p>
+
+  <ul>
+    <li>Attempted to decipher the OCaml code from semantic domain, which
+presumably defines a generic way to handle ABTs for any language. We still
+don't know what the constructor `Tm' is supposed to stand for in Neelakantan's
+code.</li>
+    <li>Explained what ABTs were in the first place, but didn't really explain
+why anyone would care.
+<a href="https://github.com/haskellcats/ast-abt-experiment">
+See the Idris code which encodes the AST and ABT as defined in PFPL.</a>
+    </li>
+    <li>Demonstrated cool things you can do with the technique described in
+McBride's functional pearl. Specifically: substituting expressions for a
+free variable, wrapping an expression with a binder which binds
+and anonymizes one of the free variables, consuming expressions with binders
+by choosing names for variables, comparing expressions for equality up to
+alpha equivalence, and (de)serializing expressions with binders.
+<a href="https://github.com/haskellcats/ast-abt-experiment">
+Haskell code for that is available.</a> But we didn't get to the automatic
+name generation algorithm.
+    </li>
+    <li>Tried to figure out what to do with this.</li>
+  </ul>
+
+  <p>So this technique specifically helps with algorithms that manage code for
+  languages with binders. In the case of Epigram, the task was to generate
+  induction principles for datatypes defined by the programmer. This involves
+  generating code and to display code you have to choose names for variables.
+  The second half of the paper describes a sane way to do this. Future food for
+  thought!</p>
+-->
+
+
+
 </div>
 
 </div>

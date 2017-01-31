@@ -75,4 +75,7 @@ code {
   white-space: pre;
   margin-bottom: 20px;
   overflow-x: auto;
+  background-color: #d6bcb5;
+  padding: 10px;
+  box-shadow: 1px 1px 1px 1px;
 }
