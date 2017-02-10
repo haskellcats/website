@@ -1,0 +1,184 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Haskellcats.net</title>
+  <meta name="description" content="Haskellcats Reading Group NOLA">
+  <meta name="author" content="">
+
+  <link rel="stylesheet" href="../css/article.css">
+  <script src="../js/scripts.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="article-header">
+  <h1><a class="title" href="http://haskellcats.net">Haskellcats</a></h1>
+  <p class="main-subtitle">Underground Functional Reading Group</p>
+</div>
+
+<div class="article-body">
+  <h2>Homebrew Crypto</h2>
+
+  <p>In April 2016 the Haskellcats brewed their own crypto in an
+effort to not only grok how people keep stuff secret, but also how
+easy it is to screw up.</p>
+
+  <p>Armed with a
+<a href="https://docs.google.com/presentation/d/1mFALpF2JP59rJggwswXPDEi9mBF6YoNfCfAflsEoL9w/edit?usp=sharing">slideshow</a> and
+<a href="https://github.com/haskellcats/homebrew-crypto">some Haskell code</a>, I gave a presentation
+at Zotz on what I found out the week before. Giant thanks to everyone who
+showed up! Here I will give a summary of what you can find in the slides
+and how the demo program functions.</p>
+
+  <h3>Slides Prelude</h3>
+
+  <p>In the prelude section of the slides, I tell you why you care
+about homebrew crypto despite it being universally acknowledged as
+a dumb idea.</p>
+
+  <h3>One-time Pads</h3>
+
+  <p>The next section is on one-time pads. Since the operation of a
+stream cipher mirrors the way a one-time pad is used, I mention them first.
+One-time pads were proven to provide perfect secrecy by Claude Shannon
+during World War II, but have been used by governments since at least
+1900.</p>
+
+  <h3>Stream Ciphers</h3>
+
+  <p>The section on stream ciphers explains how to use xor to scramble
+a stream of data against a secret stream of random bits. By xoring
+the result with the same bit stream you recover the original data.
+A deterministic random bit stream based on some secret state could be
+easily realized in Haskell if you had a "next bit" function:
+</p>
+
+  <code>next         :: S -> (Bit, S)
+unfoldr      :: (s -> (a, s)) -> s -> [a]
+initialState :: S
+unfoldr next initialState :: [Bit]
+-- e.g. 10110100010011111101111010111100101110100001010...
+</code>
+
+  <p>One way to implement the next function would be hashing a
+number that counts up when you need a new chunk of bits:</p>
+
+  <code>S = ([Bit], Integer)
+
+newInitialState = do
+  i <- cryptoRNG :: IO Word256
+  return ([], i)
+
+next :: S -> (Bit, S)
+next ([], i)   = next (sha512 i, i+1)
+next (b:bs, i) = (b, (bs, i))
+</code>
+
+  <p>If you were thinking of actually doing this in Haskell for
+real cryptographic purposes, you would really need to ask how the
+runtime system will be handling your secret generator state. In reality
+no one thinks it's a good idea to do this sort of thing in Haskell
+directly. There's just not enough control over the behavior of runtime
+objects or runtime <i>timing</i>. These issues even plague C++ programs.
+See <a href="https://www.contextis.com/documents/2/Browser_Timing_Attacks.pdf">Browser Timing Attacks</a> for an example. On the positive side
+check out <a href="http://www.cryptol.net/">cryptol</a>, a DSL in
+Haskell for specifying cryptographic primitives which compile into
+correct, safe implementations. I emphasize that Haskell code in the
+slides is there for clarity rather than production crypto.
+</p>
+
+  <h3>Diffie-Hellman</h3>
+
+  <p>The take away from the section on stream ciphers is: both
+ends of the channel need to have the same generator state for their
+secret bit stream. Obviously they can't setup the agreed state
+without encryption. So this is where the Diffie-Hellman key exchange
+scheme comes in. By the magic of modular arithmetic and the presumed
+infeasibility of solving the discrete log problem, we have this brilliant
+procedure to agree on a secret value without already having an encrypted
+channel established. The details for how this works are explained on
+slides 16 through 20.</p>
+
+  <p>The Diffie-Hellman procedure includes a non-secret pair of
+parameters. One is a large, carefully chosen prime number and the other
+parameter is probably 2. The reason for 2 is explained on slides 22
+through 24. The background for how and why to choose which large prime
+is interesting, but in the end RFC 3526 lists standard choices. Some of
+the primes in there are ridiculously large. In my investigation into "how
+big is big enough" freenode ##crypto users remarked that using a prime
+that's absurdly large may theoretically hurt you. The more cpu-intensive
+your crypto is, the more sensitive your scheme is to timing attacks.
+My head spins trying to tell how serious some of these concerns really
+are.
+</p>
+
+  <h3>The Brew</h3>
+
+  <p>In the next section of the slides I put all the pieces together
+into <a href="https://github.com/haskellcats/homebrew-crypto">the simplest cryptosystem that will actually work</a>. Well "work" might
+be too generous. At the end of this section we go over some of the practical
+problems with trying to use it for real crypto. The program Homebrew.hs
+in the git repo implements the scheme described here.
+</p>
+
+<p>I also included a second program MITM.hs which allows a third party to
+eavesdrop on Alice and Bob and attempt to crack their crypto. When cracking
+succeeds, it replays everything from the start of communications, then switches
+to the real-time decrypted view. Very nefarious! The Haskell library
+<a href="https://hackage.haskell.org/package/async">async</a>
+was critical in MITM for getting all these concurrent tasks to work together.
+You don't want Alice and Bob to be kept waiting while you are busy solving
+the discrete log problem.
+</p>
+
+  <h3>RSA Public Key Crypto</h3>
+
+  <p>The last real section contains an explanation of the RSA system for public
+  key cryptography. This scheme can be used as an alternative to DH for trading
+  the initial generator secret. It can also be used for verifying identity or
+  verifying authorization of documents.  I think the math for DH is simpler to
+  understand, but RSA allows these other cool applications beyond key
+  exchange.</p>
+
+  <h3>Weaknesses</h3>
+
+<p>The end of the section details weaknesses introduced by the
+use of public keys. The biggest one seems to be verifying the identity of
+a public key's owner.  This is the underlying issue behind the
+SSL "green lock" in the url bar of many sites. An encrypted channel isn't
+much use when bad guys are on other end.
+</p>
+
+  <p>Near the end of the slides I have a grand summary of all the security
+  issues I could identify with the homebrew crypto implementation.  While the
+  math is solid (for now), there's a substantial amount of further features
+  which need to be incorporated, without error, before you could reasonably
+  trust it. References to ways to solve each issue are included. Real crypto
+  suites like OpenSSL have done all this, but not without the occasional <a
+  href="http://heartbleed.com/">dramatic bug</a> slipping through.</p>
+
+  <h3>Loose ends</h3>
+
+  <p>Though this project became a little too big for a single week's
+worth of work, I originally had even bigger plans. The final slides have
+incomplete information on a method to split a secret into many pieces
+by using the chinese remainder theorem.</p>
+
+<p>Finally I simply dump some quotes from ##crypto user Riastradh on the
+subject of elliptic curve cryptography. Based on their testimony, the math should
+not really be any more difficult to grok than Diffie-Hellman. Who knows, maybe
+that'll be the topic of a future Haskellcats mission!
+</p>
+
+
+</div>
+
+</div>
+
+</body>
+</html>
