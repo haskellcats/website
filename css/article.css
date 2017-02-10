@@ -1,6 +1,6 @@
 body {
   font-family: sans-serif;
-  background-color: #AE948C;
+  background-color: #b9acac;
   padding: 0;
   margin: 0;
 }
@@ -22,7 +22,9 @@ a:visited {
 
 a.title {
   text-decoration: none;
-  color: #00ff00; /* EXTREME RADIOACTIVE LIME GREEN */
+  color: whitesmoke;
+  text-shadow: 2px 2px black;
+  letter-spacing: 1px;
 }
 
 p {
@@ -30,9 +32,9 @@ p {
 }
 
 .container {
-  max-width: 680px;
-  margin-left: 40px;
-  margin-right: 40px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
   margin-bottom: 20px;
   box-shadow: 1px 1px 1px 1px;
 }
@@ -40,21 +42,24 @@ p {
 .main-subtitle {
   font-size: 14pt;
   font-weight: bold;
-  color: #DBD0C1;
+  color: whitesmoke;
+  text-shadow: 2px 2px black;
 }
 
 .article-header {
   background-color: white;
   padding: 20px;
-  background-image: linear-gradient( rgba(0, 0, 0, 0.66), rgba(0, 0, 0, 0.66) ), url('../img/ultra-deep-field.jpg');
-  background-size: 680px auto;
-  background-position: 0px 0px;
+  background-image: url(../img/rainbow-banner.jpg);
+  /* background-size: 680px auto; */
+  /* background-position: 0px 0px; */
+  background-size: auto 100%;
   height: 120px;
+  border-bottom: 2px solid black;
 }
 
 .article-body {
-  background-color: #DBD0C1;
-  padding: 20px;
+  background-color: #f0f0f0;
+  padding: 20px 40px;
 }
 
 .typewriter {
@@ -75,7 +80,7 @@ code {
   white-space: pre;
   margin-bottom: 20px;
   overflow-x: auto;
-  background-color: #d6bcb5;
+  background-color: #e6dbdb;
   padding: 10px;
   box-shadow: 1px 1px 1px 1px;
 }
